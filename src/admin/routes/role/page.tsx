@@ -10,6 +10,7 @@ import {
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { useAdminCustomQuery, useAdminCustomPost } from "medusa-react";
+
 const SetPermission = () => {
   const { "*": id } = useParams();
   const [selectedPermissions, setSelectedPermissions] = useState([]);
@@ -618,4 +619,5 @@ const SetPermission = () => {
     </>
   );
 };
+
 export default SetPermission;

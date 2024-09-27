@@ -1,5 +1,5 @@
 import type { SettingConfig } from "@medusajs/admin";
-import { Adjustments, PlusMini } from "@medusajs/icons";
+import { PlusMini } from "@medusajs/icons";
 import {
   Container,
   Text,
@@ -16,11 +16,13 @@ import {
 } from "medusa-react";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import UserShield from "../../ui-components/icons/user-shield";
+
 const CustomSettingPage = () => {
-  // Create New ROle
+  // Create New Role
   const [name, setRoleName] = useState<any>("");
   const { mutate } = useAdminCustomPost("/roles/create-role", []);
-  const [mendatory, setMendatory] = useState("");
+  const [mandatory, setMandatory] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [refetchFlag, setRefetchFlag] = useState(false);
 
@@ -34,14 +36,14 @@ const CustomSettingPage = () => {
 
   const handleRoleNameChange = (e) => {
     setRoleName(e.target.value);
-    if (mendatory) {
-      setMendatory("");
+    if (mandatory) {
+      setMandatory("");
     }
   };
 
   const handleSave = async () => {
     if (!name) {
-      setMendatory("Name field is empty");
+      setMandatory("Name field is empty");
       return;
     }
     try {
@@ -62,7 +64,7 @@ const CustomSettingPage = () => {
   }, [refetchFlag]);
   const handlecancle = () => {
     setRoleName("");
-    setMendatory("");
+    setMandatory("");
     setDrawerOpen(false);
   };
   // Handle delete roles
@@ -124,7 +126,7 @@ const CustomSettingPage = () => {
                     onChange={handleRoleNameChange}
                   />
                 </div>
-                <div className="text-red-500">{mendatory}</div>
+                <div className="text-red-500">{mandatory}</div>
               </Drawer.Body>
               <Drawer.Footer>
                 <Drawer.Close asChild>
@@ -183,7 +185,7 @@ export const config: SettingConfig = {
   card: {
     label: "Roles & Permissions",
     description: "Manage User roles and Permission",
-    icon: Adjustments,
+    icon: UserShield,
   },
 };
 

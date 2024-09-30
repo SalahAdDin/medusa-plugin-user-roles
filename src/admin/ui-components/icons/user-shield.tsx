@@ -10,9 +10,9 @@ const UserShield = React.forwardRef<SVGSVGElement, IconProps>(
         height={24}
         fill="none"
         stroke={color}
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
         ref={ref}
         {...props}
       >

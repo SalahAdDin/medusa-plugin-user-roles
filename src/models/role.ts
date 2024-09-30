@@ -40,3 +40,7 @@ export class Role extends BaseEntity {
     this.id = generateEntityId(this.id, "role");
   }
 }
+
+export type TRole = Role & {
+  id: string;
+};

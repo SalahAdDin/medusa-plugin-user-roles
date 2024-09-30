@@ -35,13 +35,10 @@ class RoleService extends TransactionBaseService {
     return await roleRepo.find();
   }
 
-  async DeleteRole(id) {
-    // Extract the value from the id object
-    const roleId = id.value;
-
-    const roleRepo = this.manager_.withRepository(this.roleRpository_);
+  async deleteRole(id) {
+    const roleRepo = this.manager_.withRepository(this.roleRepository_);
     const role = await roleRepo.findOne({
-      where: { id: roleId },
+      where: { id },
     });
 
     if (role) {

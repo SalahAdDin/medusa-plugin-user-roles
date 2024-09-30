@@ -1,183 +1,92 @@
 import type { SettingConfig } from "@medusajs/admin";
 import { PlusMini } from "@medusajs/icons";
-import {
-  Container,
-  Text,
-  Table,
-  Button,
-  Drawer,
-  Input,
-  Label,
-} from "@medusajs/ui";
-import {
-  useAdminCustomQuery,
-  useAdminCustomPost,
-  useAdminCustomDelete,
-} from "medusa-react";
+
+import { useAdminCustomQuery } from "medusa-react";
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
 import UserShield from "../../ui-components/icons/user-shield";
+import BackButton from "../../ui-components/atoms/back-button";
+import BodyCard from "../../ui-components/organisms/body-card";
+import CreateRoleModal from "../../ui-components/organisms/create-role-modal";
+import RoleTable from "../../ui-components/templates/role-table";
+import Spinner from "../../ui-components/atoms/spinner";
 
 const CustomSettingPage = () => {
-  // Create New Role
-  const [name, setRoleName] = useState<any>("");
-  const { mutate } = useAdminCustomPost("/roles/create-role", []);
-  const [mandatory, setMandatory] = useState("");
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const { t } = useTranslation();
+
+  const [showCreateRoleModal, setShowCreateRoleModal] = useState(false);
   const [refetchFlag, setRefetchFlag] = useState(false);
 
   const { data, isLoading, error, refetch } = useAdminCustomQuery(
     "/roles/get-roles",
     []
   );
-  const { mutate: deleteMutate } = useAdminCustomPost("/roles/delete-role", [
-    "DeleteRole",
-  ]);
 
-  const handleRoleNameChange = (e) => {
-    setRoleName(e.target.value);
-    if (mandatory) {
-      setMandatory("");
-    }
+  const triggerRefetch = () => {
+    setRefetchFlag((prev) => !prev);
   };
 
-  const handleSave = async () => {
-    if (!name) {
-      setMandatory("Name field is empty");
-      return;
-    }
-    try {
-      const response = await mutate({ name });
-      setRoleName("");
-
-      setDrawerOpen(false);
-      setRefetchFlag(true);
-    } catch (error) {
-      console.error("Error creating page:", error);
-    }
-  };
   useEffect(() => {
     if (refetchFlag) {
       refetch();
       setRefetchFlag(false);
     }
   }, [refetchFlag]);
-  const handlecancle = () => {
-    setRoleName("");
-    setMandatory("");
-    setDrawerOpen(false);
-  };
-  // Handle delete roles
-
-  const handleDeleteRole = (id): void => {
-    deleteMutate({ id });
-    setRefetchFlag(true);
-  };
-  // Here we get all the Roles
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Spinner size={24} />;
   }
 
   if (error) {
     return <div>Error: {error.message}</div>;
   }
 
+  const actionables = [
+    {
+      label: t("roles-create-role", "Create Role"),
+      onClick: () => setShowCreateRoleModal(true),
+      icon: (
+        <span className="text-grey-90">
+          <PlusMini />
+        </span>
+      ),
+    },
+  ];
+
   return (
-    <>
-      <Container>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
+    <div className="flex h-full flex-col">
+      <div className="flex w-full grow flex-col">
+        <BackButton
+          path="/a/settings"
+          label={t("back-to-settings", "Back to settings")}
+          className="mb-xsmall"
+        />
+        <BodyCard
+          title={t("roles-permissions-title", "Roles & Permissions")}
+          subtitle={t(
+            "roles-permissions-subtitle",
+            "Manage the user roles and Permissions"
+          )}
+          actionables={actionables}
         >
-          <Text size="xlarge" weight="plus" family="sans">
-            Manage the user roles and Permissions
-          </Text>
-
-          <Drawer open={drawerOpen}>
-            <Drawer.Trigger asChild>
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  setDrawerOpen(true);
-                }}
-              >
-                <PlusMini />
-                Create Role
-              </Button>
-            </Drawer.Trigger>
-            <Drawer.Content>
-              <Drawer.Header>
-                <Drawer.Title>Add New Role</Drawer.Title>
-              </Drawer.Header>
-              <Drawer.Body className="p-4">
-                <br />
-                <Label>Enter role name</Label>
-                <br />
-
-                <div className="w-[250px]">
-                  <Input
-                    placeholder="Content Manager"
-                    id="role_name"
-                    value={name}
-                    onChange={handleRoleNameChange}
-                  />
-                </div>
-                <div className="text-red-500">{mandatory}</div>
-              </Drawer.Body>
-              <Drawer.Footer>
-                <Drawer.Close asChild>
-                  <Button variant="secondary" onClick={handlecancle}>
-                    Cancel
-                  </Button>
-                </Drawer.Close>
-                <Button onClick={handleSave}>Save</Button>
-              </Drawer.Footer>
-            </Drawer.Content>
-          </Drawer>
-        </div>
-        <br />
-        <Table>
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell>#</Table.HeaderCell>
-              <Table.HeaderCell>Role Name</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {data.role.map((role, index) => (
-              <Table.Row key={role.id}>
-                <Table.Cell>{index + 1}</Table.Cell>
-                <Table.Cell>{role.name}</Table.Cell>
-                <Table.Cell
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Link to={`/a/role/${role.id}`}>
-                    <Button variant="secondary">Edit</Button>
-                  </Link>
-                  <div style={{ marginLeft: "30px" }}>
-                    <Button
-                      variant="secondary"
-                      onClick={() => handleDeleteRole(role.id)}
-                    >
-                      Delete
-                    </Button>
-                  </div>
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
-      </Container>
-      <br />
-    </>
+          <div className="flex grow flex-col justify-between">
+            <RoleTable roles={data.role} triggerRefetch={triggerRefetch} />
+            <p className="inter-small-regular text-grey-50">
+              {t("roles-count", "{{count}}", { count: data.role.length ?? 0 })}
+            </p>
+          </div>
+          {showCreateRoleModal && (
+            <CreateRoleModal
+              handleClose={() => {
+                triggerRefetch();
+                setShowCreateRoleModal(false);
+              }}
+            />
+          )}
+        </BodyCard>
+      </div>
+    </div>
   );
 };
 

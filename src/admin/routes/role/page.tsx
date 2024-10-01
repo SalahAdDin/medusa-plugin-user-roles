@@ -1,3 +1,4 @@
+import { PlusMini } from "@medusajs/icons";
 import {
   Button,
   Container,
@@ -7,12 +8,26 @@ import {
   Input,
   Table,
 } from "@medusajs/ui";
-import { useParams } from "react-router-dom";
-import { useState } from "react";
 import { useAdminCustomQuery, useAdminCustomPost } from "medusa-react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
+
+import BackButton from "../../ui-components/atoms/back-button";
+import Spinner from "../../ui-components/atoms/spinner";
+import BodyCard from "../../ui-components/organisms/body-card";
+import UserTable from "../../ui-components/templates/user-table";
+import PermissionTable from "../../ui-components/templates/permission-table";
+import CreatePermissionModal from "../../ui-components/organisms/create-permission-modal";
 
 const SetPermission = () => {
+  const { t } = useTranslation();
   const { "*": id } = useParams();
+
+  const [refetchFlag, setRefetchFlag] = useState(false);
+  const [showCreatePermissionModal, setShowCreatePermissionModal] =
+    useState(false);
+
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [selectedUser, setSelectedUser] = useState([]);
   const [newPermission, setNewPermission] = useState({
@@ -31,14 +46,27 @@ const SetPermission = () => {
     isLoading: permissionsLoading,
     error: permissionsError,
   } = useAdminCustomQuery("/roles/get-permission", []);
+
   // Hook#2 for getting all permission of a single role
   const {
     data: roleData,
     isLoading: roleIsloading,
-    error: roleerror,
+    error: roleError,
+    refetch,
   } = useAdminCustomQuery(`/roles/get-rolepermissions/${id}`, [
     "getRolePermissions",
   ]);
+
+  const triggerRefetch = () => {
+    setRefetchFlag((prev) => !prev);
+  };
+
+  useEffect(() => {
+    if (refetchFlag) {
+      refetch();
+      setRefetchFlag(false);
+    }
+  }, [refetchFlag]);
 
   // Hook#3 for updating the role permissons
   const {
@@ -48,11 +76,7 @@ const SetPermission = () => {
   } = useAdminCustomPost(`/roles/update-permissions/${id}`, [
     "updateRolesPermissions",
   ]);
-  // Hook#4 for creating a new permission
-  const { mutate: createnewpermission } = useAdminCustomPost(
-    "/roles/createnewpermission",
-    ["createPermissions"]
-  );
+
   // Hook#5 list all users
   const {
     data: usersData,
@@ -194,37 +218,6 @@ const SetPermission = () => {
     setDrawerOpen2(false);
   };
 
-  // Handle function to create permission
-  const handleCreatePermissions = () => {
-    if (!newPermission.name && !newPermission.metadata) {
-      setNameError("Name field is empty");
-      setMetadataError("Metadata field is empty");
-      return;
-    }
-
-    if (!newPermission.name) {
-      setNameError("Name field is empty");
-      return;
-    }
-
-    if (!newPermission.metadata) {
-      setMetadataError("Metadata field is empty");
-      return;
-    }
-    // Hook 4 creating new permissions
-    const newMetadata = { [`${newPermission.metadata}`]: true };
-    const updatedPermission = {
-      name: newPermission.name,
-      metadata: newMetadata,
-    };
-    try {
-      createnewpermission(updatedPermission);
-      setDrawerOpen(false);
-    } catch (error) {
-      console.error("Error creating page:", error);
-    }
-  };
-
   const handlecancel = () => {
     setNewPermission({
       name: "",
@@ -279,8 +272,65 @@ const SetPermission = () => {
     }
   };
 
+  const actionables = [
+    {
+      label: t("roles-create-permission", "Create Permission"),
+      onClick: () => {
+        setShowCreatePermissionModal(true);
+        return null;
+      },
+      icon: (
+        <span className="text-grey-90">
+          <PlusMini />
+        </span>
+      ),
+    },
+  ];
+
   return (
     <>
+      <div className="flex h-full flex-col">
+        <div className="flex w-full grow flex-col">
+          <BackButton
+            path="/a/settings/user-roles"
+            label={t("roles-back-to-settings", "Back to Roles")}
+            className="mb-xsmall"
+          />
+          <BodyCard
+            title={`${t("roles-name-title", "Roles Name")}: ${
+              roleData.role.name
+            }`}
+            actionables={actionables}
+          >
+            <div className="flex grow flex-col justify-between">
+              <h2 className="text-grey-90 inter-large-semibold">
+                {t("roles-permissions-title", "Permissions")}
+              </h2>
+              <PermissionTable
+                roleId={roleData.role.id}
+                permissions={permissions}
+                triggerRefetch={() => {
+                  triggerRefetch();
+                }}
+              />
+              <p className="inter-small-regular text-grey-50">
+                {t("roles-permissions-count", "{{count}}", {
+                  count: permissions.length ?? 0,
+                })}
+              </p>
+            </div>
+            {showCreatePermissionModal && (
+              <CreatePermissionModal
+                handleClose={() => {
+                  triggerRefetch();
+                  setShowCreatePermissionModal(false);
+                }}
+              />
+            )}
+          </BodyCard>
+        </div>
+      </div>
+
       <div>
         <Container>
           <div
@@ -294,59 +344,6 @@ const SetPermission = () => {
               Role Name: {roleData.role.name}
               <br />
             </Text>
-
-            <Drawer open={drawerOpen}>
-              <Drawer.Trigger asChild>
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    setDrawerOpen(true);
-                  }}
-                >
-                  Create Permission
-                </Button>
-              </Drawer.Trigger>
-              <Drawer.Content>
-                <Drawer.Header>
-                  <Drawer.Title>Add New Permission</Drawer.Title>
-                </Drawer.Header>
-                <Drawer.Body className="p-4">
-                  <br />
-                  <Label>Enter permission name</Label>
-                  <br />
-
-                  <div className="w-[250px]">
-                    <Input
-                      placeholder="products"
-                      id="role_name"
-                      value={newPermission.name}
-                      onChange={handleNameChange}
-                    />
-                  </div>
-                  <div className="text-red-500">{nameError}</div>
-                  <br />
-                  <Label>Enter permission Route</Label>
-                  <br />
-                  <div className="w-[250px]">
-                    <Input
-                      placeholder="/products"
-                      id="role_name"
-                      value={newPermission.metadata}
-                      onChange={handleMetadataChange}
-                    />
-                  </div>
-                  <div className="text-red-500">{metadataError}</div>
-                </Drawer.Body>
-                <Drawer.Footer>
-                  <Drawer.Close asChild>
-                    <Button variant="secondary" onClick={handlecancel}>
-                      Cancel
-                    </Button>
-                  </Drawer.Close>
-                  <Button onClick={handleCreatePermissions}>Save</Button>
-                </Drawer.Footer>
-              </Drawer.Content>
-            </Drawer>
           </div>
         </Container>
         <br />

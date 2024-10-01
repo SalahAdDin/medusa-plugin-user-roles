@@ -23,7 +23,7 @@ export default (adminRouter: Router) => {
   router.get("/get-permission", wrapHandler(listPermission));
   router.get("/get-rolepermissions/:id", wrapHandler(reterieve1));
   router.post("/update-permissions/:id", wrapHandler(updateRolePermissions));
-  router.post("/createnewpermission", wrapHandler(createPermission));
+  router.post("/create-permission", wrapHandler(createPermission));
   router.get("/getAllUsers", wrapHandler(list));
   router.delete("/delete-role/:id", wrapHandler(deleteRole));
   router.post("/remove-permissions",wrapHandler(removePermission));

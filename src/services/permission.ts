@@ -23,17 +23,16 @@ class PermissionService extends TransactionBaseService {
     return await permissionRepo.find();
   }
 
-  async createPermission(data) {
-    const permissionRepo = this.manager_.withRepository(
-      this.permissionRepository_
-    );
-    console.log(data)
-    const permission = permissionRepo.create({name:data.data.name,metadata:data.data.metadata});
-    console.log(permission)
+  async create(data: CreatePayload) {
+    // omitting validation for simplicity
+    return this.atomicPhase_(async (manager) => {
+      const permissionRepo = manager.withRepository(this.permissionRepository_);
+      const permission = permissionRepo.create(data);
 
-    const result = await permissionRepo.save(permission);
+      const result = await permissionRepo.save(permission);
 
-    return result;
+      return result;
+    });
   }
 }
 

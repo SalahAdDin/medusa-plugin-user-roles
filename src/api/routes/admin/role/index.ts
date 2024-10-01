@@ -3,7 +3,7 @@ import { Router } from "express";
 import create from "./create-role";
 import associateUser from "./associate-user";
 import listRoles from "./get-roles";
-import listPermission from "./get-permission";
+import listPermissions from "./get-permission";
 import reterieve1 from "./getRoleById";
 import updateRolePermissions from "./updateRolePermissions";
 import createPermission from "./createPermission";
@@ -17,15 +17,17 @@ const router = Router();
 export default (adminRouter: Router) => {
   adminRouter.use("/roles", router);
 
-  router.post("/create-role", wrapHandler(create));
-  router.post("/:id/user", wrapHandler(associateUser));
   router.get("/get-roles", wrapHandler(listRoles));
-  router.get("/get-permission", wrapHandler(listPermission));
-  router.get("/get-rolepermissions/:id", wrapHandler(reterieve1));
-  router.post("/update-permissions/:id", wrapHandler(updateRolePermissions));
-  router.post("/create-permission", wrapHandler(createPermission));
-  router.get("/getAllUsers", wrapHandler(list));
+  router.post("/create-role", wrapHandler(create));
   router.delete("/delete-role/:id", wrapHandler(deleteRole));
-  router.post("/remove-permissions",wrapHandler(removePermission));
-  router.post("/remove-users",wrapHandler(removeUsersfromRole));
+
+  router.get("/get-all-permissions", wrapHandler(listPermissions));
+  router.post("/create-permission", wrapHandler(createPermission));
+  router.post("/update-permissions/:id", wrapHandler(updateRolePermissions));
+  router.get("/get-rolepermissions/:id", wrapHandler(reterieve1));
+  router.post("/remove-permissions", wrapHandler(removePermission));
+
+  router.post("/:id/user", wrapHandler(associateUser));
+  router.get("/getAllUsers", wrapHandler(list));
+  router.post("/remove-users", wrapHandler(removeUsersfromRole));
 };

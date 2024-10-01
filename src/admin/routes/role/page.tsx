@@ -28,29 +28,13 @@ const SetPermission = () => {
   const [showCreatePermissionModal, setShowCreatePermissionModal] =
     useState(false);
 
-  const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [selectedUser, setSelectedUser] = useState([]);
-  const [newPermission, setNewPermission] = useState({
-    name: "",
-    metadata: "",
-  });
-  const [nameError, setNameError] = useState("");
-  const [metadataError, setMetadataError] = useState("");
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerOpen1, setDrawerOpen1] = useState(false);
   const [drawerOpen2, setDrawerOpen2] = useState(false);
-
-  // Hook#1 for getting all permission from database
-  const {
-    data: permissionsData,
-    isLoading: permissionsLoading,
-    error: permissionsError,
-  } = useAdminCustomQuery("/roles/get-permission", []);
 
   // Hook#2 for getting all permission of a single role
   const {
     data: roleData,
-    isLoading: roleIsloading,
+    isLoading: roleIsLoading,
     error: roleError,
     refetch,
   } = useAdminCustomQuery(`/roles/get-rolepermissions/${id}`, [
@@ -68,32 +52,22 @@ const SetPermission = () => {
     }
   }, [refetchFlag]);
 
-  // Hook#3 for updating the role permissons
-  const {
-    mutate: updaterole,
-    isLoading: isUpdating,
-    error: iserror,
-  } = useAdminCustomPost(`/roles/update-permissions/${id}`, [
-    "updateRolesPermissions",
-  ]);
-
   // Hook#5 list all users
   const {
     data: usersData,
     isLoading: userLoading,
     error: userError,
+    refetch: refetchUser,
   } = useAdminCustomQuery("/roles/getAllUsers", []);
 
   // Hooks# 6 update the role_id inside the user entity
-
   const {
     mutate: updateRoleInUser,
-    isLoading: updateroleLoading,
-    error: updateroleError,
+    isLoading: updateRoleLoading,
+    error: updateRoleError,
   } = useAdminCustomPost(`roles/${id}/user`, ["setRolestouser"]);
 
   // Hook# 7 for removing the permission from a role
-
   const {
     mutate: removePermission,
     isLoading: removePermissionloading,
@@ -101,65 +75,51 @@ const SetPermission = () => {
   } = useAdminCustomPost(`roles/remove-permissions`, ["removePermissions"]);
 
   // Hook# 8 for removing the users from role
-
   const {
     mutate: removeRoleUsers,
     isLoading: removeRoleUsersloading,
     error: removeRoleUserserror,
   } = useAdminCustomPost(`roles/remove-users`, ["removeUsers"]);
 
-  // Hook 1
-  if (permissionsLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (permissionsError) {
-    return <div>Error: {permissionsError.message}</div>;
-  }
   // Hook 2
-  if (roleIsloading) {
-    return <div>Loading...</div>;
+  if (roleIsLoading) {
+    return <Spinner size={24} />;
   }
 
-  if (roleerror) {
-    return <div>Error: {roleerror.message}</div>;
-  }
-  //Hook 3
-  if (isUpdating) {
-    return <div>Loading...</div>;
+  if (roleError) {
+    return <div>Error: {roleError.message}</div>;
   }
 
-  if (iserror) {
-    return <div>Error: {iserror.message}</div>;
-  }
   //Hook 4
   if (userLoading) {
-    return <div>Loading...</div>;
+    return <Spinner size={24} />;
   }
 
   if (userError) {
     return <div>Error: {userError.message}</div>;
   }
+
   // Hook 5
-  if (updateroleLoading) {
-    return <div>Loading...</div>;
+  if (updateRoleLoading) {
+    return <Spinner size={24} />;
   }
 
-  if (updateroleError) {
-    return <div>Error: {updateroleError.message}</div>;
+  if (updateRoleError) {
+    return <div>Error: {updateRoleError.message}</div>;
   }
+
   // hook 7
   if (removePermissionloading) {
-    return <div>Loading...</div>;
+    return <Spinner size={24} />;
   }
 
   if (removePermissionerror) {
     return <div>Error: {removePermissionerror.message}</div>;
   }
-  // hook 8
 
+  // hook 8
   if (removeRoleUsersloading) {
-    return <div>Loading...</div>;
+    return <Spinner size={24} />;
   }
 
   if (removeRoleUserserror) {
@@ -168,27 +128,6 @@ const SetPermission = () => {
 
   const permissions = roleData.role.permissions;
   const users = roleData.role.users;
-
-  // hook 3 handle checkbox
-  const handlePermissionToggle = (permission) => {
-    const selectedPermissionIds = selectedPermissions.map((p) => p.id);
-
-    if (selectedPermissionIds.includes(permission.id)) {
-      // Permission is already selected, remove it
-      const updatedPermissions = selectedPermissions.filter(
-        (p) => p.id !== permission.id
-      );
-      setSelectedPermissions(updatedPermissions);
-    } else {
-      // Permission is not selected, add it
-      setSelectedPermissions([...selectedPermissions, permission]);
-    }
-  };
-  const handleUpdatePermissions = () => {
-    updaterole(selectedPermissions);
-    setSelectedPermissions([]);
-    setDrawerOpen1(false);
-  };
 
   // Here we handle the Selected Users
   const handleUsersToggle = (user) => {
@@ -203,7 +142,7 @@ const SetPermission = () => {
       setSelectedUser([...selectedUser, user]);
     }
   };
-  // zzz
+
   const handleSelectedUser = () => {
     const newIds = selectedUser.map((user) => user.id);
 
@@ -216,18 +155,6 @@ const SetPermission = () => {
     // Clear selectedUser and close the drawer
     setSelectedUser([]);
     setDrawerOpen2(false);
-  };
-
-  const handlecancel = () => {
-    setNewPermission({
-      name: "",
-      metadata: "",
-    });
-
-    setMetadataError("");
-
-    setNameError("");
-    setDrawerOpen(false);
   };
 
   // Handle remove permission from a role
@@ -248,28 +175,6 @@ const SetPermission = () => {
       id,
     };
     removeRoleUsers(ids);
-  };
-
-  const handleNameChange = (e) => {
-    const { value } = e.target;
-    setNewPermission({
-      ...newPermission,
-      name: value,
-    });
-    if (nameError) {
-      setNameError("");
-    }
-  };
-
-  const handleMetadataChange = (e) => {
-    const { value } = e.target;
-    setNewPermission({
-      ...newPermission,
-      metadata: value,
-    });
-    if (metadataError) {
-      setMetadataError("");
-    }
   };
 
   const actionables = [
@@ -318,6 +223,20 @@ const SetPermission = () => {
                   count: permissions.length ?? 0,
                 })}
               </p>
+              <h2 className="text-grey-90 inter-large-semibold mt-large">
+                {t("roles-users-title", "Users")}
+              </h2>
+              <UserTable
+                users={users}
+                triggerRefetch={() => {
+                  triggerRefetch();
+                }}
+              />
+              <p className="inter-small-regular text-grey-50">
+                {t("roles-users-count", "{{count}}", {
+                  count: users.length ?? 0,
+                })}
+              </p>
             </div>
             {showCreatePermissionModal && (
               <CreatePermissionModal
@@ -333,122 +252,11 @@ const SetPermission = () => {
 
       <div>
         <Container>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Text size="base" weight="plus" family="sans">
-              Role Name: {roleData.role.name}
-              <br />
-            </Text>
-          </div>
-        </Container>
-        <br />
-        <Container>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Text size="base" weight="plus" family="sans">
-              <h1> Permissions : </h1>
-              <br />
-            </Text>
-
-            <Drawer open={drawerOpen1}>
-              <Drawer.Trigger asChild>
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    setDrawerOpen1(true);
-                  }}
-                >
-                  Add Permissions
-                </Button>
-              </Drawer.Trigger>
-              <Drawer.Content>
-                <Drawer.Header>
-                  <Drawer.Title>
-                    Assign Permissions to selected Role
-                  </Drawer.Title>
-                </Drawer.Header>
-                <Drawer.Body className="p-4">
-                  <Text>List of all Permission&apos;s</Text>
-
-                  <br />
-                  <br />
-                  <Table>
-                    <Table.Header>
-                      <Table.Row>
-                        <Table.HeaderCell>Permission</Table.HeaderCell>
-                        <Table.HeaderCell>Route</Table.HeaderCell>
-                      </Table.Row>
-                    </Table.Header>
-                    <Table.Body>
-                      {permissionsData.permission.map((permission, index) => (
-                        <Table.Row key={index}>
-                          <Table.Cell
-                            style={{ display: "flex", alignItems: "center" }}
-                          >
-                            <input
-                              type="checkbox"
-                              id={`permission-checkbox-${permission.id}`}
-                              checked={selectedPermissions.some(
-                                (p) => p.id === permission.id
-                              )}
-                              onChange={() =>
-                                handlePermissionToggle(permission)
-                              }
-                              disabled={permissions.some(
-                                (p) => p.id === permission.id
-                              )}
-                              style={{
-                                width: "20px",
-                                height: "20px",
-                                border: "2px solid #FFFFFF",
-                                marginRight: "10px",
-                              }}
-                            />
-                            <Label
-                              htmlFor={`permission-checkbox-${permission.id}`}
-                            ></Label>
-                            {permission.name}
-                          </Table.Cell>
-                          <Table.Cell>
-                            {JSON.stringify(permission.metadata)}
-                          </Table.Cell>
-                        </Table.Row>
-                      ))}
-                    </Table.Body>
-                  </Table>
-                </Drawer.Body>
-                <Drawer.Footer>
-                  <Drawer.Close asChild>
-                    <Button
-                      variant="secondary"
-                      onClick={() => {
-                        setSelectedPermissions([]);
-                        setDrawerOpen1(false);
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </Drawer.Close>
-                  <Button onClick={handleUpdatePermissions}>Save</Button>
-                </Drawer.Footer>
-              </Drawer.Content>
-            </Drawer>
-          </div>
           {/* Table that display All permissions of a selected role */}
           <div>
             <Table>
               <Table.Header>
-                <Table.Row>
+                <Table.Row className="h-12">
                   <Table.HeaderCell>#</Table.HeaderCell>
                   <Table.HeaderCell>Name</Table.HeaderCell>
                   <Table.HeaderCell>Route</Table.HeaderCell>

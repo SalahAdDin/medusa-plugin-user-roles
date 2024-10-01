@@ -54,6 +54,11 @@ const DeletePrompt: React.FC<DeletePromptProps> = ({
   return (
     <Modal isLargeModal={false} handleClose={handleClose}>
       <Modal.Body>
+        <Modal.Header handleClose={handleClose}>
+          <span className="inter-xlarge-semibold">
+            {t("organisms-delete-title", "Delete")}
+          </span>
+        </Modal.Header>
         <Modal.Content>
           <div className="flex flex-col">
             <span className="inter-large-semibold">

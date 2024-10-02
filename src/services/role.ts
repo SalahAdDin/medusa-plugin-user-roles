@@ -85,7 +85,7 @@ class RoleService extends TransactionBaseService {
   }
 
   async updateRolePermissions(id, updatedData) {
-    const roleRepo = this.manager_.withRepository(this.roleRpository_);
+    const roleRepo = this.manager_.withRepository(this.roleRepository_);
     const role = await roleRepo.findOne({
       where: {
         id,
@@ -93,13 +93,7 @@ class RoleService extends TransactionBaseService {
       relations: ["permissions"], // Load the existing permissions
     });
 
-    if (role.permissions) {
-      // Append the updated permissions to the existing ones
-      role.permissions.push(...updatedData);
-    } else {
-      // If no existing permissions, assign the updated data
-      role.permissions = updatedData;
-    }
+    role.permissions = updatedData;
 
     // Save the updated role
     const result = await roleRepo.save(role);

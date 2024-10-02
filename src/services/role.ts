@@ -18,20 +18,20 @@ type InjectedDependencies = {
 };
 
 class RoleService extends TransactionBaseService {
-  protected readonly roleRpository_: typeof RoleRepository;
+  protected readonly roleRepository_: typeof RoleRepository;
   protected readonly permissionService_: PermissionService;
   protected readonly userService_: UserService;
 
   constructor(container: InjectedDependencies) {
     super(container);
 
-    this.roleRpository_ = container.roleRepository;
+    this.roleRepository_ = container.roleRepository;
     this.permissionService_ = container.permissionService;
     this.userService_ = container.userService;
   }
 
   async listRoles(): Promise<Role[]> {
-    const roleRepo = this.manager_.withRepository(this.roleRpository_);
+    const roleRepo = this.manager_.withRepository(this.roleRepository_);
     return await roleRepo.find();
   }
 
@@ -49,11 +49,11 @@ class RoleService extends TransactionBaseService {
     }
   }
 
-  async retrieve1(id: string): Promise<Role> {
+  async retrieve(id: string): Promise<Role> {
     // for simplicity, we retrieve all relations
     // however, it's best to supply the relations
     // as an optional method parameter
-    const roleRepo = this.manager_.withRepository(this.roleRpository_);
+    const roleRepo = this.manager_.withRepository(this.roleRepository_);
     return await roleRepo.findOne({
       where: {
         id,
@@ -103,11 +103,12 @@ class RoleService extends TransactionBaseService {
 
   async associateUser(role_id: string, user_id: string): Promise<Role> {
     return this.atomicPhase_(async () => {
+      // omitting validation for simplicity
       await this.userService_.update(user_id, {
         role_id,
       });
 
-      return await this.retrieve1(role_id);
+      return await this.retrieve(role_id);
     });
   }
 

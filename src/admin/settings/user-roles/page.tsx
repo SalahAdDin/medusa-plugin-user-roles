@@ -35,7 +35,7 @@ const CustomSettingPage = () => {
   }, [refetchFlag]);
 
   if (isLoading) {
-    return <Spinner size={24} />;
+    return <Spinner size="large" />;
   }
 
   if (error) {

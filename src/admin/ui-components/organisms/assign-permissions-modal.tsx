@@ -3,42 +3,39 @@ import { useAdminCustomPost, useAdminCustomQuery } from "medusa-react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
+import Spinner from "../atoms/spinner";
+import useDebounce from "../hooks/use-debounce";
 import useNotification from "../hooks/use-notification";
-
-import { CreateModalProps } from "./types";
 import Modal from "../molecules/modal";
 import Button from "../fundamentals/button";
 import Table from "../molecules/table";
 import { getErrorMessage } from "../utils/error-messages";
-import Spinner from "../atoms/spinner";
-import useDebounce from "../hooks/use-debounce";
 
-type FieldListElement = {
-  id: string;
-  selected: boolean;
-  index: number;
-};
+import {
+  BooleanIdFieldArray,
+  CreateModalProps,
+  FieldListElement,
+} from "./types";
 
 type AssignPermissionsModalProps = CreateModalProps & {
   roleId: string;
-  selectedPermissionsId: Array<string>;
+  selectedPermissionsIds: Array<string>;
 };
 
 type AssignPermissionModalFormData = {
-  permissions: Array<{
-    id: string;
-    selected: boolean;
-  }>;
+  permissions: BooleanIdFieldArray;
 };
 
 const AssignPermissionsModal: React.FC<AssignPermissionsModalProps> = ({
   handleClose,
   roleId,
-  selectedPermissionsId,
+  selectedPermissionsIds,
 }) => {
   const notification = useNotification();
   const { t } = useTranslation();
-  const [shownElements, setShownElements] = useState<FieldListElement>([]);
+  const [shownElements, setShownElements] = useState<Array<FieldListElement>>(
+    []
+  );
   const [searchTerm, setSearchTerm] = useState<string>("");
 
   const debouncedSearchTerm = useDebounce<string>(searchTerm, 1000);
@@ -90,7 +87,7 @@ const AssignPermissionsModal: React.FC<AssignPermissionsModalProps> = ({
       reset({
         permissions: data.permission.map((permission) => ({
           id: permission.id,
-          selected: selectedPermissionsId.includes(permission.id),
+          selected: selectedPermissionsIds.includes(permission.id),
         })),
       });
     }

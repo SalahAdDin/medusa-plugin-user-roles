@@ -2,4 +2,15 @@ type CreateModalProps = {
   handleClose: () => void;
 };
 
-export type { CreateModalProps };
+type FieldListElement = {
+  id: string;
+  selected: boolean;
+  index: number;
+};
+
+type BooleanIdFieldArray = Array<{
+  id: string;
+  selected: boolean;
+}>;
+
+export type { BooleanIdFieldArray, CreateModalProps, FieldListElement };

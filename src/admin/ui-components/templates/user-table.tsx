@@ -5,6 +5,7 @@ import { useAdminCustomDelete } from "medusa-react";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import useDebounce from "../hooks/use-debounce";
 import useNotification from "../hooks/use-notification";
 import SidebarTeamMember from "../molecules/sidebar-team-member";
 import Table from "../molecules/table";
@@ -39,6 +40,9 @@ const UserTable: React.FC<UserTableProps> = ({
   const [shownElements, setShownElements] = useState<Array<UserListElement>>(
     []
   );
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
+  const debouncedSearchTerm = useDebounce<string>(searchTerm, 500);
 
   const { mutate: removeUser } = useAdminCustomDelete(
     `roles/${roleId}/remove-user/${selectedUserId}`,
@@ -105,16 +109,24 @@ const UserTable: React.FC<UserTableProps> = ({
     setShownElements(elements);
   }, [elements]);
 
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      const searchTermRegex = new RegExp(debouncedSearchTerm, "i");
+
+      setShownElements(
+        elements.filter(
+          (element) =>
+            searchTermRegex.test(element.entity?.first_name) ||
+            searchTermRegex.test(element.entity?.last_name) ||
+            searchTermRegex.test(element.entity?.email) ||
+            searchTermRegex.test(element.entity?.user_email)
+        )
+      );
+    } else setShownElements(elements);
+  }, [users, debouncedSearchTerm]);
+
   const handleUserSearch = (term: string) => {
-    setShownElements(
-      elements.filter(
-        (e) =>
-          e.entity?.first_name?.includes(term) ||
-          e.entity?.last_name?.includes(term) ||
-          e.entity?.email?.includes(term) ||
-          e.entity?.user_email?.includes(term)
-      )
-    );
+    setSearchTerm(term);
   };
 
   const filteringOptions = [

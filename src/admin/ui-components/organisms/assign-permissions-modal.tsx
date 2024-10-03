@@ -38,7 +38,7 @@ const AssignPermissionsModal: React.FC<AssignPermissionsModalProps> = ({
   );
   const [searchTerm, setSearchTerm] = useState<string>("");
 
-  const debouncedSearchTerm = useDebounce<string>(searchTerm, 1000);
+  const debouncedSearchTerm = useDebounce<string>(searchTerm, 500);
 
   const {
     data,

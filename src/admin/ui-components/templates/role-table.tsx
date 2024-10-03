@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 import type { TRole, TRoleWithCounts } from "src/models/role";
 
+import useDebounce from "../hooks/use-debounce";
 import useNotification from "../hooks/use-notification";
 import Table from "../molecules/table";
 import DeletePrompt from "../organisms/delete-prompt";
@@ -32,6 +33,9 @@ const RoleTable: React.FC<RoleTableProps> = ({ roles, triggerRefetch }) => {
   const [shownElements, setShownElements] = useState<Array<RoleListElement>>(
     []
   );
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
+  const debouncedSearchTerm = useDebounce<string>(searchTerm, 500);
 
   const { mutate: removeRole } = useAdminCustomDelete(
     `/roles/delete-role/${selectedRoleId}`,
@@ -104,15 +108,23 @@ const RoleTable: React.FC<RoleTableProps> = ({ roles, triggerRefetch }) => {
     setShownElements(elements);
   }, [elements]);
 
-  const handleUserSearch = (term: string) => {
-    setShownElements((prevElements) =>
-      prevElements.filter((element) => element.entity?.name?.includes(term))
-    );
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      const searchTermRegex = new RegExp(debouncedSearchTerm, "i");
+
+      setShownElements(
+        elements.filter((element) => searchTermRegex.test(element.entity?.name))
+      );
+    } else setShownElements(elements);
+  }, [roles, debouncedSearchTerm]);
+
+  const handleRoleSearch = (term: string) => {
+    setSearchTerm(term);
   };
 
   return (
     <div className="h-full w-full overflow-y-auto">
-      <Table enableSearch handleSearch={handleUserSearch}>
+      <Table enableSearch handleSearch={handleRoleSearch}>
         <Table.Head>
           <Table.HeadRow>
             <Table.HeadCell className="w-72">

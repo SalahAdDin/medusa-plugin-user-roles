@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { TPermission } from "src/models/permission";
+import useDebounce from "../hooks/use-debounce";
 import useNotification from "../hooks/use-notification";
 import Table from "../molecules/table";
 import Actionables from "../molecules/actionables";
@@ -41,6 +42,9 @@ const PermissionTable: React.FC<PermissionTableProps> = ({
   const [shownElements, setShownElements] = useState<
     Array<PermissionListElement>
   >([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
+  const debouncedSearchTerm = useDebounce<string>(searchTerm, 500);
 
   const { mutate: removePermission } = useAdminCustomDelete(
     `roles/remove-permissions/${roleId}/${selectedPermissionId}`,
@@ -104,14 +108,18 @@ const PermissionTable: React.FC<PermissionTableProps> = ({
     setShownElements(elements);
   }, [elements]);
 
-  const handleUserSearch = (term: string) => {
-    setShownElements(
-      elements.filter(
-        (element) =>
-          element.entity?.name.includes(term) ||
-          JSON.stringify(element.entity?.metadata || "").includes(term)
-      )
-    );
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      const searchTermRegex = new RegExp(debouncedSearchTerm, "i");
+
+      setShownElements(
+        elements.filter((element) => searchTermRegex.test(element.entity?.name))
+      );
+    } else setShownElements(elements);
+  }, [permissions, debouncedSearchTerm]);
+
+  const handlePermissionSearch = (term: string) => {
+    setSearchTerm(term);
   };
 
   const actionables = [
@@ -132,7 +140,7 @@ const PermissionTable: React.FC<PermissionTableProps> = ({
     <div className="h-full w-full overflow-y-auto">
       <Table
         enableSearch
-        handleSearch={handleUserSearch}
+        handleSearch={handlePermissionSearch}
         tableActions={
           <Actionables actions={actionables} forceDropdown={false} />
         }
@@ -158,7 +166,9 @@ const PermissionTable: React.FC<PermissionTableProps> = ({
             setShowAssignPermissionsModal(false);
           }}
           roleId={roleId}
-          selectedPermissionsId={permissions.map((permission) => permission.id)}
+          selectedPermissionsIds={permissions.map(
+            (permission) => permission.id
+          )}
         />
       )}
       {selectedPermissionId && deletePermission && (

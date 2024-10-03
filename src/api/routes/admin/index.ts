@@ -1,7 +1,9 @@
 import { Router } from "express";
 import { wrapHandler } from "@medusajs/medusa";
+
 import customRouteHandler from "./custom-route-handler";
-import roleRouter from "./role"
+import roleRouter from "./role";
+
 // Initialize a custom router
 const router = Router();
 

@@ -29,7 +29,7 @@ const SetPermission = () => {
     isLoading: roleIsLoading,
     error: roleError,
     refetch,
-  } = useAdminCustomQuery(`/roles/get-rolepermissions/${id}`, [
+  } = useAdminCustomQuery(`/roles/get-role-permissions/${id}`, [
     "getRolePermissions",
   ]);
 

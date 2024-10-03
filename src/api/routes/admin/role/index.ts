@@ -1,17 +1,17 @@
 import { wrapHandler } from "@medusajs/utils";
 import { Router } from "express";
 
-import create from "./create-role";
 import associateUsers from "./associate-user";
-import listRoles from "./get-roles";
-import listPermissions from "./get-permission";
-import reterieve1 from "./getRoleById";
-import assignPermissions from "./update-role-permissions";
-import createPermission from "./createPermission";
-import listUsers from "./getAllUsers";
+import createRole from "./create-role";
+import createPermission from "./create-permission";
 import deleteRole from "./delete-role";
+import listUsers from "./get-all-users";
+import listPermissions from "./get-permission";
+import listRoles from "./get-roles";
+import getRoleById from "./get-role-by-id";
 import removePermission from "./remove-permission";
 import removeUser from "./remove-user";
+import assignPermissions from "./update-role-permissions";
 
 const router = Router();
 
@@ -19,13 +19,13 @@ export default (adminRouter: Router) => {
   adminRouter.use("/roles", router);
 
   router.get("/get-roles", wrapHandler(listRoles));
-  router.post("/create-role", wrapHandler(create));
+  router.post("/create-role", wrapHandler(createRole));
   router.delete("/delete-role/:id", wrapHandler(deleteRole));
 
   router.get("/get-all-permissions", wrapHandler(listPermissions));
+  router.get("/get-role-permissions/:id", wrapHandler(getRoleById));
   router.post("/create-permission", wrapHandler(createPermission));
   router.post("/update-permissions/:id", wrapHandler(assignPermissions));
-  router.get("/get-rolepermissions/:id", wrapHandler(reterieve1));
   router.delete(
     "/remove-permissions/:id/:permissionId",
     wrapHandler(removePermission)

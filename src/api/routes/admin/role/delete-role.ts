@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+
 import RoleService from "../../../../services/role";
 
 export default async (req: Request, res: Response) => {

@@ -56,36 +56,34 @@ const CustomSettingPage = () => {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex w-full grow flex-col">
-        <BackButton
-          path="/a/settings"
-          label={t("back-to-settings", "Back to settings")}
-          className="mb-xsmall"
-        />
-        <BodyCard
-          title={t("roles-permissions-title", "Roles & Permissions")}
-          subtitle={t(
-            "roles-permissions-subtitle",
-            "Manage the user roles and Permissions"
-          )}
-          actionables={actionables}
-        >
-          <div className="flex grow flex-col justify-between">
-            <RoleTable roles={data.role} triggerRefetch={triggerRefetch} />
-            <p className="inter-small-regular text-grey-50">
-              {t("roles-count", "{{count}}", { count: data.role.length ?? 0 })}
-            </p>
-          </div>
-          {showCreateRoleModal && (
-            <CreateRoleModal
-              handleClose={() => {
-                triggerRefetch();
-                setShowCreateRoleModal(false);
-              }}
-            />
-          )}
-        </BodyCard>
-      </div>
+      <BackButton
+        path="/a/settings"
+        label={t("back-to-settings", "Back to settings")}
+        className="mb-xsmall"
+      />
+      <BodyCard
+        title={t("roles-permissions-title", "Roles & Permissions")}
+        subtitle={t(
+          "roles-permissions-subtitle",
+          "Manage the user roles and Permissions"
+        )}
+        actionables={actionables}
+      >
+        <div className="flex grow flex-col justify-between">
+          <RoleTable roles={data.role} triggerRefetch={triggerRefetch} />
+          <p className="inter-small-regular text-grey-50">
+            {t("roles-count", "{{count}}", { count: data.role.length ?? 0 })}
+          </p>
+        </div>
+        {showCreateRoleModal && (
+          <CreateRoleModal
+            handleClose={() => {
+              triggerRefetch();
+              setShowCreateRoleModal(false);
+            }}
+          />
+        )}
+      </BodyCard>
     </div>
   );
 };

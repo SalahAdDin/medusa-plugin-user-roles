@@ -5,9 +5,7 @@ import { authenticate, ConfigModule } from "@medusajs/medusa";
 import { getConfigFile } from "medusa-core-utils";
 import { attachStoreRoutes } from "./routes/store";
 import { attachAdminRoutes } from "./routes/admin";
-import permissionMiddleware from "./middlewares/permission";
-
-
+import { permissions as permissionsMiddleware } from "./middlewares/permission";
 
 export default (rootDirectory: string): Router | Router[] => {
   // Read currently-loaded medusa config
@@ -50,7 +48,7 @@ export default (rootDirectory: string): Router | Router[] => {
   router.use("/admin", adminRouter);
 
   // Attach the permission middleware to the adminRouter
-  adminRouter.use(permissionMiddleware);
+  adminRouter.use(permissionsMiddleware);
 
   // Attach custom routes to these routers
   attachStoreRoutes(storeRouter);

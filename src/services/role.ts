@@ -1,11 +1,10 @@
 import { TransactionBaseService } from "@medusajs/medusa";
-import { Role } from "../models/role";
+import { Role, TRoleWithCounts } from "../models/role";
 import RoleRepository from "../repositories/role";
 import PermissionService, {
   CreatePayload as PermissionCreatePayload,
 } from "./permission";
 import UserService from "./user";
-import { Any } from "typeorm";
 
 type CreatePayload = Pick<Role, "name"> & {
   permissions?: PermissionCreatePayload[];
@@ -79,26 +78,26 @@ class RoleService extends TransactionBaseService {
     });
   }
 
-  async create(name: any) {
-    // return this.atomicPhase_(async (manager) => {
-    // omitting validation for simplicity
-    // const { permissions: permissionsData = [] } = data
-    // delete data.permissions
+  async create(data: CreatePayload): Promise<Role> {
+    return this.atomicPhase_(async (manager) => {
+      // omitting validation for simplicity
+      const { permissions: permissionsData = [] } = data;
+      delete data.permissions;
 
-    const roleRepo = this.manager_.withRepository(this.roleRpository_);
-    const role = roleRepo.create(name);
+      const roleRepo = manager.withRepository(this.roleRepository_);
+      const role = roleRepo.create(data);
 
-    // role.permissions = [];
+      role.permissions = [];
 
-    // for (const permissionData of permissionsData) {
-    //   role.permissions.push(
-    //     await this.permissionService_.create(permissionData)
-    //   );
-    // }{"/roles/get-roles": true}
-    const result = await roleRepo.save(role);
+      for (const permissionData of permissionsData) {
+        role.permissions.push(
+          await this.permissionService_.create(permissionData)
+        );
+      }
+      const result = await roleRepo.save(role);
 
-    return result;
-    // });
+      return await this.retrieve(result.id);
+    });
   }
 
   async updateRolePermissions(id, updatedData) {

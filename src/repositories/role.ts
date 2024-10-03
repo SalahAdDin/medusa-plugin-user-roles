@@ -1,9 +1,7 @@
-import { Role } from "../models/role"
-import { 
-  dataSource,
-} from "@medusajs/medusa/dist/loaders/database"
+import { dataSource } from "@medusajs/medusa/dist/loaders/database";
 
-export const RoleRepository = dataSource
-  .getRepository(Role)
+import { Role } from "../models/role";
 
-export default RoleRepository
+export const RoleRepository = dataSource.getRepository(Role);
+
+export default RoleRepository;

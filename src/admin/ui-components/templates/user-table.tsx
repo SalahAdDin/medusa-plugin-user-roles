@@ -41,8 +41,8 @@ const UserTable: React.FC<UserTableProps> = ({
   );
 
   const { mutate: removeUser } = useAdminCustomDelete(
-    `roles/remove-users/${roleId}/${selectedUserId}`,
-    ["remove-users"],
+    `roles/${roleId}/remove-user/${selectedUserId}`,
+    ["remove-user "],
     [],
     {
       onSuccess: () => {
@@ -72,7 +72,7 @@ const UserTable: React.FC<UserTableProps> = ({
             variant: "danger",
             onClick: () => {
               setDeleteUser(true);
-              setSelectedUserId(user);
+              setSelectedUserId(user.id);
             },
             icon: <Trash size={20} />,
           },

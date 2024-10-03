@@ -44,3 +44,8 @@ export class Role extends BaseEntity {
 export type TRole = Role & {
   id: string;
 };
+
+export type TRoleWithCounts = Omit<Role, "permissions" | "users"> & {
+  permissions: Array<string>;
+  usersCount: number;
+};

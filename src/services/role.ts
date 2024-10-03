@@ -112,31 +112,31 @@ class RoleService extends TransactionBaseService {
     });
   }
 
-  async removePermission(role_id, permission_id) {
-    const roleRepo = this.manager_.withRepository(this.roleRpository_);
+  async removePermission(roleId, permissionId) {
+    const roleRepo = this.manager_.withRepository(this.roleRepository_);
 
-    const role = await this.retrieve1(role_id);
+    const role = await roleRepo.findOne({
+      where: { id: roleId },
+      relations: ["permissions"],
+    });
 
-    if (!role) {
-      return false;
+    if (role) {
+      const permissionIndex = role.permissions.findIndex(
+        (permission) => permission.id === permissionId
+      );
+
+      if (permissionIndex === -1) {
+        throw new Error("Permission not found");
+      }
+
+      role.permissions.splice(permissionIndex, 1);
+
+      await roleRepo.save(role);
+    } else {
+      // Handle the case where the role with the given ID doesn't exist
+      throw new Error("Role not found");
     }
-
-    const permissionIndex = role.permissions.findIndex(
-      (p) => p.id === permission_id
-    );
-
-    if (permissionIndex === -1) {
-      return false;
-    }
-
-    role.permissions.splice(permissionIndex, 1);
-
-    await roleRepo.save(role);
-
-    return true;
   }
-
-  
 }
 
 export default RoleService;

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-import type { TRole } from "src/models/role";
+import type { TRole, TRoleWithCounts } from "src/models/role";
 
 import useNotification from "../hooks/use-notification";
 import Table from "../molecules/table";
@@ -54,7 +54,7 @@ const RoleTable: React.FC<RoleTableProps> = ({ roles, triggerRefetch }) => {
     setDeleteRole(false);
   };
 
-  const getRoleTableRow = (role: TRole) => {
+  const getRoleTableRow = (role: TRoleWithCounts) => {
     return (
       <Table.Row
         key={`role-${role.id}`}
@@ -78,18 +78,13 @@ const RoleTable: React.FC<RoleTableProps> = ({ roles, triggerRefetch }) => {
       >
         <Table.Cell>{role.name}</Table.Cell>
         <Table.Cell>
-          {/* TODO 
           <ul className="flex flex-col">
             {role.permissions.map((permission) => (
-              <li>{permission.name}</li>
+              <li key={crypto.randomUUID()}>{permission}</li>
             ))}
-          </ul> */}
+          </ul>
         </Table.Cell>
-        <Table.Cell>
-          {/* TODO
-          {role.users.length}
-           */}
-        </Table.Cell>
+        <Table.Cell>{role.usersCount}</Table.Cell>
         <Table.Cell></Table.Cell>
       </Table.Row>
     );

@@ -30,9 +30,26 @@ class RoleService extends TransactionBaseService {
     this.userService_ = container.userService;
   }
 
-  async listRoles(): Promise<Role[]> {
+  async listRoles(): Promise<Array<TRoleWithCounts>> {
     const roleRepo = this.manager_.withRepository(this.roleRepository_);
-    return await roleRepo.find();
+    const roles = await roleRepo.find({
+      relations: ["permissions", "users"],
+    });
+
+    const rolesWithCounts = roles.map(({ permissions, users, ...rest }) => {
+      const permissionsLabels = permissions?.map(
+        (permission) => permission.name
+      );
+      const usersCount = users ? users.length : 0;
+
+      return {
+        ...rest,
+        permissions: permissionsLabels,
+        usersCount,
+      };
+    });
+
+    return rolesWithCounts;
   }
 
   async deleteRole(id) {

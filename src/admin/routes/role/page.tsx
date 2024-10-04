@@ -25,7 +25,7 @@ const SetPermission = () => {
     error: roleError,
     refetch,
   } = useAdminCustomQuery(`/roles/get-role-permissions/${id}`, [
-    "getRolePermissions",
+    "get-role-permissions",
   ]);
 
   const triggerRefetch = () => {
@@ -67,56 +67,60 @@ const SetPermission = () => {
 
   return (
     <div className="flex h-full flex-col">
-      <BackButton
-        path="/a/settings/user-roles"
-        label={t("roles-back-to-settings", "Back to Roles")}
-        className="mb-xsmall"
-      />
-      <BodyCard
-        title={`${t("roles-name-title", "Roles Name")}: ${roleData.role.name}`}
-        actionables={actionables}
-      >
-        <div className="flex grow flex-col justify-between">
-          <h2 className="text-grey-90 inter-large-semibold">
-            {t("roles-permissions-title", "Permissions")}
-          </h2>
-          <PermissionTable
-            roleId={roleData.role.id}
-            permissions={permissions}
-            triggerRefetch={() => {
-              triggerRefetch();
-            }}
-          />
-          <p className="inter-small-regular text-grey-50">
-            {t("roles-permissions-count", "{{count}}", {
-              count: permissions.length ?? 0,
-            })}
-          </p>
-          <h2 className="text-grey-90 inter-large-semibold mt-large">
-            {t("roles-users-title", "Users")}
-          </h2>
-          <UserTable
-            roleId={roleData.role.id}
-            users={users}
-            triggerRefetch={() => {
-              triggerRefetch();
-            }}
-          />
-          <p className="inter-small-regular text-grey-50">
-            {t("roles-users-count", "{{count}}", {
-              count: users.length ?? 0,
-            })}
-          </p>
-        </div>
-        {showCreatePermissionModal && (
-          <CreatePermissionModal
-            handleClose={() => {
-              triggerRefetch();
-              setShowCreatePermissionModal(false);
-            }}
-          />
-        )}
-      </BodyCard>
+      <div className="flex w-full grow flex-col">
+        <BackButton
+          path="/a/settings/user-roles"
+          label={t("roles-back-to-settings", "Back to Roles")}
+          className="mb-xsmall"
+        />
+        <BodyCard
+          title={`${t("roles-name-title", "Roles Name")}: ${
+            roleData.role.name
+          }`}
+          actionables={actionables}
+        >
+          <div className="flex grow flex-col justify-between">
+            <h2 className="text-grey-90 inter-large-semibold">
+              {t("roles-permissions-title", "Permissions")}
+            </h2>
+            <PermissionTable
+              roleId={roleData.role.id}
+              permissions={permissions}
+              triggerRefetch={() => {
+                triggerRefetch();
+              }}
+            />
+            <p className="inter-small-regular text-grey-50">
+              {t("roles-permissions-count", "{{count}}", {
+                count: permissions.length ?? 0,
+              })}
+            </p>
+            <h2 className="text-grey-90 inter-large-semibold mt-large">
+              {t("roles-users-title", "Users")}
+            </h2>
+            <UserTable
+              roleId={roleData.role.id}
+              users={users}
+              triggerRefetch={() => {
+                triggerRefetch();
+              }}
+            />
+            <p className="inter-small-regular text-grey-50">
+              {t("roles-users-count", "{{count}}", {
+                count: users.length ?? 0,
+              })}
+            </p>
+          </div>
+          {showCreatePermissionModal && (
+            <CreatePermissionModal
+              handleClose={() => {
+                triggerRefetch();
+                setShowCreatePermissionModal(false);
+              }}
+            />
+          )}
+        </BodyCard>
+      </div>
     </div>
   );
 };

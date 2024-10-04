@@ -12,7 +12,7 @@ import CreateRoleModal from "../../ui-components/organisms/create-role-modal";
 import RoleTable from "../../ui-components/templates/role-table";
 import Spinner from "../../ui-components/atoms/spinner";
 
-const CustomSettingPage = () => {
+const Roles = () => {
   const { t } = useTranslation();
 
   const [showCreateRoleModal, setShowCreateRoleModal] = useState(false);
@@ -98,4 +98,4 @@ export const config: SettingConfig = {
   },
 };
 
-export default CustomSettingPage;
+export default Roles;
